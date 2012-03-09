@@ -1,0 +1,4 @@
+På rename-save: Om eksisterer - lagre, hvis ikke - opprette // CHECK
+På nytt notat: Om eksisterer - lagre, hvis ikke - forkast // CHECK
+På pause: Om eksisterer - lagre, hvis ikke - lagre tmp
+
