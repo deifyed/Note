@@ -6,6 +6,9 @@
 
 package net.develish.note;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,13 +17,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class SQLAdapter {
+	
+	private final String DTG_FORMAT = "yyyyMMddHHmmss";
+	
 	public static final String KEY_TITLE = "ntitle";
 	public static final String KEY_BODY = "nbody";
 	public static final String KEY_ROWID = "_id";
+	public static final String KEY_LASTCHANGED = "lstchngd";
 	
 	private static final String DATABASE_NAME = "notesdb";
 	private static final String DATABASE_TABLE = "notestable";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
@@ -28,7 +35,12 @@ public class SQLAdapter {
 	private static final String DATABASE_CREATE =
 			"create table " + DATABASE_TABLE + " (" + KEY_ROWID + 
 			" integer primary key autoincrement," + KEY_TITLE +
-			" text not null, " + KEY_BODY + " text);";
+			" text not null, " + KEY_BODY + " text, " + KEY_LASTCHANGED +
+			" long not null);";
+	
+	private static final String DATABASE_UPGRADE =
+			"alter table " + DATABASE_TABLE + " add " + KEY_LASTCHANGED +
+			" integer not null";
 	
 	private final Context ctx;
 	
@@ -48,7 +60,7 @@ public class SQLAdapter {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			
-			db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE);
+			db.execSQL(DATABASE_UPGRADE);
 		}
 	}
 	
@@ -74,6 +86,10 @@ public class SQLAdapter {
 		initialValues.put(KEY_TITLE, title);
 		initialValues.put(KEY_BODY, body);
 		
+		SimpleDateFormat formater = new SimpleDateFormat(DTG_FORMAT);
+		
+		initialValues.put(KEY_LASTCHANGED, Long.parseLong("" + formater.format(new Date())));
+		
 		return mDb.insert(DATABASE_TABLE, null, initialValues);
 	}
 	
@@ -84,7 +100,7 @@ public class SQLAdapter {
 	
 	public Cursor fetchAllNotes() {
 		
-		return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_TITLE, KEY_BODY}, null, null, null, null, null);
+		return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_TITLE, KEY_BODY}, null, null, null, null, KEY_LASTCHANGED + " DESC");
 	}
 	
 	public Cursor fetchNote(long rowId) throws SQLException {
@@ -101,6 +117,10 @@ public class SQLAdapter {
 		ContentValues args = new ContentValues();
 		args.put(KEY_TITLE, title);
 		args.put(KEY_BODY, body);
+		
+		SimpleDateFormat formater = new SimpleDateFormat(DTG_FORMAT);
+		
+		args.put(KEY_LASTCHANGED, Long.parseLong("" + formater.format(new Date())));
 		
 		return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
 	}

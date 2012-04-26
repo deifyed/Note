@@ -17,8 +17,8 @@
  *  * Sync SyncAdapter <-- Not in settings
  *  
  *  Text:
- *  	Add auto-indent OG options (Lese currentLine og telle indent når bruker trykker enter)
- *  	Add auto-bullet-list OG options (Lese første character etter whitespace og evt legge til "* " når bruker trykker enter
+ *  	Add auto-indent OG options (Lese currentLine og telle indent nï¿½r bruker trykker enter)
+ *  	Add auto-bullet-list OG options (Lese fï¿½rste character etter whitespace og evt legge til "* " nï¿½r bruker trykker enter
  */
 
 package net.develish.note;
@@ -26,7 +26,6 @@ package net.develish.note;
 import java.io.File;
 import java.io.FileWriter;
 
-import com.cognitiveadventures.note.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

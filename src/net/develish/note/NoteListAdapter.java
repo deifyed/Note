@@ -11,8 +11,6 @@ package net.develish.note;
 
 import java.util.ArrayList;
 
-import com.cognitiveadventures.note.R;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;

@@ -9,8 +9,6 @@
 
 package net.develish.note;
 
-import com.cognitiveadventures.note.R;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
