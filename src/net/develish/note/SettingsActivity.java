@@ -13,6 +13,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+/**
+ * Room for future settings. 
+ * @author Kristoffer Pedersen
+ *
+ */
 public class SettingsActivity extends Activity {
 	/*
 	 * OVERRIDES

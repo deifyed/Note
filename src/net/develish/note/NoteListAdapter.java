@@ -5,27 +5,33 @@
  * License:
  * I take no responsibility what so ever of what you decide to do with this code.
  * You are free to use and/or modify it as you wish. 
+ * 
+ * TODO:
+ * 	* Batch delete
  */
 
 package net.develish.note;
-
-import java.util.ArrayList;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+/**
+ * Simple list adapter used to fill the load notes listview.
+ * Reason for the custom list adapter is because I'm planning on implementing 
+ * a batch delete function.
+ * 
+ * @author Kristoffer Pedersen
+ *
+ */
 public class NoteListAdapter extends SimpleCursorAdapter {
 	
 	private Cursor mCursor;
 	private int titleIndex;
-	private ArrayList<Long> deletePos;
 	
 	private LayoutInflater li;
 
@@ -38,18 +44,6 @@ public class NoteListAdapter extends SimpleCursorAdapter {
 		mCursor = c;
 		
 		titleIndex = c.getColumnIndexOrThrow(from);
-		
-		deletePos = new ArrayList<Long>();
-	}
-	
-	public ArrayList<Long> getSelectedItems() {
-		
-		return(deletePos);
-	}
-	
-	public int getSelectedCount() {
-		
-		return(deletePos.size());
 	}
 	
 	@Override
@@ -66,18 +60,6 @@ public class NoteListAdapter extends SimpleCursorAdapter {
 				vHolder = new ViewHolder();
 				
 				vHolder.noteTitleHolder = (TextView) convertView.findViewById(R.id.noteTitle);
-				vHolder.noteCheckBoxHolder = (CheckBox) convertView.findViewById(R.id.noteCheckBox);
-				
-				vHolder.noteCheckBoxHolder.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					
-					public void onCheckedChanged(CompoundButton v, boolean isChecked) {
-						
-						if(isChecked)
-							deletePos.add(((ViewHolder)((View) v.getParent()).getTag()).id);
-						else
-							deletePos.remove(((ViewHolder)((View) v.getParent()).getTag()).id);
-					}
-				});
 				
 				convertView.setTag(vHolder);
 			}
@@ -86,9 +68,6 @@ public class NoteListAdapter extends SimpleCursorAdapter {
 			}
 			
 			vHolder.id = mCursor.getLong(mCursor.getColumnIndex(SQLAdapter.KEY_ROWID));
-			
-			if(deletePos.contains(vHolder.id))
-				vHolder.noteCheckBoxHolder.setChecked(true);
 			
 			vHolder.noteTitleHolder.setText(mCursor.getString(titleIndex));
 		}
@@ -99,7 +78,6 @@ public class NoteListAdapter extends SimpleCursorAdapter {
 	public static class ViewHolder {
 		
 		TextView noteTitleHolder;
-		CheckBox noteCheckBoxHolder;
 		long id;
 	}
 

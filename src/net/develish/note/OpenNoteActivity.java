@@ -11,10 +11,7 @@ package net.develish.note;
 
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -26,14 +23,16 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-
-public class OpenNoteActivity extends ListActivity implements DialogInterface.OnClickListener {
+/**
+ * Class representing loading of notes functionality.
+ * @author Kristoffer Pedersen
+ *
+ */
+public class OpenNoteActivity extends ListActivity {
 	
 	private final int DELETE_KEY = 37;
 	
 	private SQLAdapter sql;
-	
-	private boolean openConfirm = false;
 	
     /** Called when the activity is first created. */
     @Override
@@ -108,12 +107,6 @@ public class OpenNoteActivity extends ListActivity implements DialogInterface.On
     			setResult(Activity.RESULT_CANCELED, new Intent());
     			this.finish();
     			return(true);
-    		case R.id.btnDelete:
-    			batchDeleteAlert();
-    			return(true);
-    		case R.id.btnSelectAll:
-    			selectAll();
-    			return(true);
     		default:
     	    	return super.onOptionsItemSelected(item);
     	}
@@ -122,35 +115,31 @@ public class OpenNoteActivity extends ListActivity implements DialogInterface.On
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
     	
-    	if(((NoteListAdapter) getListAdapter()).getSelectedCount() == 0 || openConfirm == true) {
+    	sql.open();
+    	
+    	Cursor c = sql.fetchNote(id);
+    	
+    	sql.close();
+    	
+    	if(c.moveToFirst()) {
     		
-    		openConfirm = false;
+        	Bundle extras = new Bundle();
+        	
+    		extras.putString(SQLAdapter.KEY_TITLE, c.getString(c.getColumnIndexOrThrow(SQLAdapter.KEY_TITLE)));
+    		extras.putString(SQLAdapter.KEY_BODY, c.getString(c.getColumnIndexOrThrow(SQLAdapter.KEY_BODY)));
+    		extras.putLong(SQLAdapter.KEY_ROWID, c.getLong(c.getColumnIndexOrThrow(SQLAdapter.KEY_ROWID)));
     		
-	    	sql.open();
-	    	
-	    	Cursor c = sql.fetchNote(id);
-	    	
-	    	sql.close();
-	    	
-	    	if(c.moveToFirst()) {
-	    		
-	        	Bundle extras = new Bundle();
-	        	
-	    		extras.putString(SQLAdapter.KEY_TITLE, c.getString(c.getColumnIndexOrThrow(SQLAdapter.KEY_TITLE)));
-	    		extras.putString(SQLAdapter.KEY_BODY, c.getString(c.getColumnIndexOrThrow(SQLAdapter.KEY_BODY)));
-	    		extras.putLong(SQLAdapter.KEY_ROWID, c.getLong(c.getColumnIndexOrThrow(SQLAdapter.KEY_ROWID)));
-	    		
-	    		this.setResult(Activity.RESULT_OK, new Intent().putExtras(extras));
-	    		
-	    		finish();
-	    	}
-    	} else
-    		if(openConfirm == false)
-    			openConfirm = true;
+    		this.setResult(Activity.RESULT_OK, new Intent().putExtras(extras));
+    		
+    		finish();
+    	}
     	
     	super.onListItemClick(l, v, position, id);
     }
     
+    /**
+     * Populates the load notes list view
+     */
     void fillList() {
     	
     	sql.open();
@@ -163,75 +152,4 @@ public class OpenNoteActivity extends ListActivity implements DialogInterface.On
     	
     	sql.close();
     }
-
-    void batchDeleteAlert() {
-    	
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	
-    	builder.setTitle(R.string.delete_notes_dialog_title);
-    	builder.setMessage(String.format(getResources().getString(R.string.delete_notes_dialog_message), ((NoteListAdapter) getListAdapter()).getSelectedCount()));
-    	
-    	builder.setPositiveButton(R.string.delete_notes, this);
-    	
-    	builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-    		
-			public void onClick(DialogInterface dialog, int which) {
-				
-				dialog.cancel();
-			}
-		});
-    	
-    	builder.show();
-    }
-    
-    void selectAll() {
-    	
-//    	for(int i = 0; i < getListView().getChildCount(); ++i)
-//    		((NoteListAdapter.ViewHolder) getListView().getChildAt(i).getTag()).noteCheckBoxHolder.setChecked(true);
-//    	
-//    	((NoteListAdapter) getListAdapter()).selectAll(getListAdapter());
-    		
-    	if(getListView().getCount() == 0) {
-    	
-	    	sql.open();
-	    	
-	    	for(int i = 0; i < 20; ++i)
-	    		sql.createNote("" + (i+1), "erhm");
-	    	
-	    	sql.close();
-	    	
-	    	fillList();
-    	} else {
-    		
-    		sql.open();
-    		
-    		Cursor c = sql.fetchAllNotes();
-    		
-    		c.moveToFirst();
-    		
-    		while(c.isAfterLast() == false) {
-   
-    			sql.deleteNote(c.getLong(c.getColumnIndex(SQLAdapter.KEY_ROWID)));
-    			
-    			c.moveToNext();
-    		}
-    				
-    		sql.close();
-    		
-    		fillList();
-    	}
-    }
-
-	public void onClick(DialogInterface dialog, int which) {
-		
-		if(which == Dialog.BUTTON_POSITIVE) {
-			
-	    	sql.open();
-	    	for(long id : ((NoteListAdapter) getListAdapter()).getSelectedItems())
-	    		sql.deleteNote(id);
-	    	sql.close();
-    		
-    		fillList();
-		}
-	}
 }

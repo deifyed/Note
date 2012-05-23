@@ -43,6 +43,11 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Main activity. Stands for the edit note functionality.
+ * @author Kristoffer Pedersen
+ *
+ */
 public class NoteV2Activity extends Activity {
 	
 	private final boolean debug = false;
@@ -365,6 +370,11 @@ public class NoteV2Activity extends Activity {
      * SUPPORT FUNCTIONS/METHODS
      */
     
+    /**
+     * Checks if a note id currently exist in the database.
+     * @param id to check for existance
+     * @return True if note id exists
+     */
     private boolean noteExists(Long id) {
     	
     	sql.open();
@@ -395,6 +405,10 @@ public class NoteV2Activity extends Activity {
         getActionBar().setIcon(R.drawable.homeiconunsaved);
     }
 
+    /**
+     * Prints out debug information when debug flag is True
+     * @param msg Message to print
+     */
     private void debugmsg(String msg) {
     	
     	if(debug)    	
